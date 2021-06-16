@@ -1,0 +1,30 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+
+        <property name="connection.url">jdbc:mysql://localhost:3306/home_books?useSSL=false&amp;serverTimezone=UTC</property>
+        <property name="connection.username">skstudent</property>
+        <property name="connection.password">skstudent</property>
+        <property name="connection.pool_size">100</property>
+        <property name="show_sql">true</property>
+        <property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        <property name="current_session_context_class">thread</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <mapping class="home_books_api.model.Book"/>
+        <mapping class="home_books_api.model.Author"/>
+<!--        <mapping class="home_books_api.author.Publisher"/>-->
+<!--        <mapping class="home_books_api.author.Room"/>-->
+<!--        <mapping class="home_books_api.author.Shelf"/>-->
+<!--        <mapping class="home_books_api.author.Status"/>-->
+<!--        <mapping class="home_books_api.author.StatusType"/>-->
+    </session-factory>
+
+</hibernate-configuration>
