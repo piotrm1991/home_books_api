@@ -1,12 +1,10 @@
 package home_books_api.controller;
 
-import com.querydsl.core.types.Predicate;
+import home_books_api.config.ApiVersion;
 import home_books_api.model.Author;
 import home_books_api.repository.AuthorRepository;
-import home_books_api.config.ApiVersion;
 import home_books_api.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
@@ -113,7 +111,7 @@ public class AuthorRestApiController {
                         .getAuthor(author.getId()))
                 .withSelfRel());
         authorResource.add(linkTo(methodOn(BookRestApiController.class)
-                        .getBooksByAuthor(author.getId()))
+                .getBooksByAuthor(author.getId()))
                 .withRel(REL_BOOKS));
         return authorResource;
     }
