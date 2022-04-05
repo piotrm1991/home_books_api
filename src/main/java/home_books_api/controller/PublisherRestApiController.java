@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -33,14 +34,22 @@ public class PublisherRestApiController {
         this.publisherService = publisherService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
     public ResponseEntity<Resource<Publisher>> getPublisher(@PathVariable Integer id) {
         return this.publisherRepository.findById(id).map(this::resource)
                 .map(this::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public ResponseEntity<Resource<Publisher>> getPublisherForAngular(@PathVariable Integer id) {
+        return this.publisherRepository.findById(id).map(this::resource)
+                .map(this::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(produces = ApiVersion.V1_HAL_JSON)
     public Resources<Resource<Publisher>> getPublishers() {
         Resources<Resource<Publisher>> resources = new Resources<>(
                 this.publisherRepository.findAll().stream().map(this::resource)
@@ -49,12 +58,36 @@ public class PublisherRestApiController {
         return resources;
     }
 
-    @PatchMapping("/{id}")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
+    public List<Resource<Publisher>> getPublishersForAngular() {
+        return this.publisherRepository.findAll().stream().map(this::resource)
+                .collect(Collectors.toList());
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PatchMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public void updatePublisherForAngular(@PathVariable Integer id, @RequestBody Publisher newPartialPublisher) {
+        this.publisherService.updatePublisher(id, newPartialPublisher);
+    }
+
+    @PatchMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
     public void updatePublisher(@PathVariable Integer id, @RequestBody Publisher newPartialPublisher) {
         this.publisherService.updatePublisher(id, newPartialPublisher);
     }
 
-    @GetMapping(params = "name")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(params = "name", produces = ApiVersion.V2_FOR_ANGULAR)
+    public Resources<Resource<Publisher>> findPublisherByNameForAngular(@RequestParam("name") String name) {
+        Resources<Resource<Publisher>> resources = new Resources<>(
+                this.publisherRepository.findPublisherByName(name).stream()
+                        .map(this::resource)
+                        .collect(Collectors.toList()));
+        addPublisherLink(resources, REL_SELF);
+        return resources;
+    }
+
+    @GetMapping(params = "name", produces = ApiVersion.V1_HAL_JSON)
     public Resources<Resource<Publisher>> findPublisherByName(@RequestParam("name") String name) {
         Resources<Resource<Publisher>> resources = new Resources<>(
                 this.publisherRepository.findPublisherByName(name).stream()
@@ -64,7 +97,16 @@ public class PublisherRestApiController {
         return resources;
     }
 
-    @PostMapping
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(produces = ApiVersion.V2_FOR_ANGULAR)
+    public ResponseEntity<?> addPublisherForAngular(@RequestBody Publisher publisher) {
+        Publisher addedPublisher = this.publisherRepository.save(publisher);
+        return ResponseEntity.created(URI.create(
+                resource(addedPublisher).getLink(REL_SELF).getHref()))
+                .build();
+    }
+
+    @PostMapping(produces = ApiVersion.V1_HAL_JSON)
     public ResponseEntity<?> addPublisher(@RequestBody Publisher publisher) {
         Publisher addedPublisher = this.publisherRepository.save(publisher);
         return ResponseEntity.created(URI.create(
@@ -72,7 +114,13 @@ public class PublisherRestApiController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @DeleteMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public void deletePublisherForAngular(@PathVariable("id") Integer id) {
+        this.publisherRepository.deleteById(id);
+    }
+
+    @DeleteMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
     public void deletePublisher(@PathVariable("id") Integer id) {
         this.publisherRepository.deleteById(id);
     }

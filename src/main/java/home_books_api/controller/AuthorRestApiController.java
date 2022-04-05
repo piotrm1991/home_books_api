@@ -64,6 +64,17 @@ public class AuthorRestApiController {
         return resources;
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(params = "name", produces = ApiVersion.V2_FOR_ANGULAR)
+    public Resources<Resource<Author>> findAuthorsByNameForAngular(@RequestParam("name") String name) {
+        Resources<Resource<Author>> resources = new Resources<>(
+                this.authorRepository.findAuthorsByName(name).stream()
+                        .map(this::resource)
+                        .collect(Collectors.toList()));
+        addAuthorLink(resources, REL_SELF);
+        return resources;
+    }
+
     @GetMapping(params = "name", produces = ApiVersion.V1_HAL_JSON)
     public Resources<Resource<Author>> findAuthorsByName(@RequestParam("name") String name) {
         Resources<Resource<Author>> resources = new Resources<>(
