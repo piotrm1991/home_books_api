@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -33,29 +32,14 @@ public class AuthorRestApiController {
         this.authorService = authorService;
     }
 
-    @GetMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping("/{id}")
     public ResponseEntity<Resource<Author>> getAuthor(@PathVariable Integer id) {
         return this.authorRepository.findById(id).map(this::resource)
                 .map(this::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
-    @GetMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
-    public ResponseEntity<Resource<Author>> getAuthorForAngular(@PathVariable Integer id) {
-        return this.authorRepository.findById(id).map(this::resource)
-                .map(this::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @CrossOrigin(origins = "http://localhost:4200")
-    @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
-    public List<Resource<Author>> getAuthorsForAngular() {
-        return this.authorRepository.findAll().stream().map(this::resource)
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping(produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping
     public Resources<Resource<Author>> getAuthors() {
         Resources<Resource<Author>> resources = new Resources<>(
                 this.authorRepository.findAll().stream().map(this::resource)
@@ -64,37 +48,32 @@ public class AuthorRestApiController {
         return resources;
     }
 
-    @GetMapping(params = "name", produces = ApiVersion.V1_HAL_JSON)
-    public Resources<Resource<Author>> findAuthorsByName(@RequestParam("name") String name) {
+    @GetMapping(params = "firstName")
+    public Resources<Resource<Author>> findAuthorsByFirstName(@RequestParam("firstName") String firstName) {
         Resources<Resource<Author>> resources = new Resources<>(
-                this.authorRepository.findAuthorsByName(name).stream()
+                this.authorRepository.findAuthorsByFirstName(firstName).stream()
                         .map(this::resource)
                         .collect(Collectors.toList()));
         addAuthorLink(resources, REL_SELF);
         return resources;
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
-    @PatchMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
-    public void updateAuthorForAngular(@PathVariable Integer id, @RequestBody Author newPartialAuthor) {
-        this.authorService.updateAuthor(id, newPartialAuthor);
+    @GetMapping(params = "lastName")
+    public Resources<Resource<Author>> findAuthorsByLastName(@RequestParam("lastName") String lastName) {
+        Resources<Resource<Author>> resources = new Resources<>(
+                this.authorRepository.findAuthorsByLastName(lastName).stream()
+                        .map(this::resource)
+                        .collect(Collectors.toList()));
+        addAuthorLink(resources, REL_SELF);
+        return resources;
     }
 
-    @PatchMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @PatchMapping("/{id}")
     public void updateAuthor(@PathVariable Integer id, @RequestBody Author newPartialAuthor) {
         this.authorService.updateAuthor(id, newPartialAuthor);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
-    @PostMapping(produces = ApiVersion.V2_FOR_ANGULAR)
-    public ResponseEntity<?> addAuthorForAngular(@RequestBody Author author) {
-        Author addedAuthor = this.authorRepository.save(author);
-        return ResponseEntity.created(URI.create(
-                        resource(addedAuthor).getLink(REL_SELF).getHref()))
-                .build();
-    }
-
-    @PostMapping(produces = ApiVersion.V1_HAL_JSON)
+    @PostMapping
     public ResponseEntity<?> addAuthor(@RequestBody Author author) {
         Author addedAuthor = this.authorRepository.save(author);
         return ResponseEntity.created(URI.create(
@@ -102,14 +81,18 @@ public class AuthorRestApiController {
                 .build();
     }
 
-    @DeleteMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
-    public void deleteAuthor(@PathVariable("id") Integer id) {
-        this.authorRepository.deleteById(id);
+    @GetMapping(params = {"firstName", "lastName"})
+    public Resources<Resource<Author>> findAuthorsByFirstNameAndLastName(@RequestParam("lastName") String lastName, @RequestParam("firstName") String firstName) {
+        Resources<Resource<Author>> resources = new Resources<>(
+                this.authorRepository.findByFirstNameAndLastName(firstName, lastName).stream()
+                        .map(this::resource)
+                        .collect(Collectors.toList()));
+        addAuthorLink(resources, REL_SELF);
+        return resources;
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
-    @DeleteMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
-    public void deleteAuthorForAngular(@PathVariable("id") Integer id) {
+    @DeleteMapping("/{id}")
+    public void deleteAuthor(@PathVariable("id") Integer id) {
         this.authorRepository.deleteById(id);
     }
 

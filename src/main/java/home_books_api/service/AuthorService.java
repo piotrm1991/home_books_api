@@ -14,24 +14,14 @@ public class AuthorService {
 
     public void updateAuthor(Integer id, Author newPartialAuthor) {
         this.authorRepository.findById(id).ifPresent(author -> {
-            if (newPartialAuthor.getName() != null) {
-                author.setName(
-                        newPartialAuthor.getName());
+            if (newPartialAuthor.getFirstName() != null) {
+                author.setFirstName(
+                        newPartialAuthor.getFirstName());
+            }
+            if (newPartialAuthor.getLastName() != null) {
+                author.setLastName(newPartialAuthor.getLastName());
             }
             this.authorRepository.save(author);
         });
     }
-
-//    public void updateAuthor(Integer id, Author newPartialAuthor) {
-//        this.authorRepository.findById(id).ifPresent(author -> {
-//            if (newPartialAuthor.getFirstName() != null) {
-//                author.setFirstName(
-//                        newPartialAuthor.getFirstName());
-//            }
-//            if (newPartialAuthor.getLastName() != null) {
-//                author.setLastName(newPartialAuthor.getLastName());
-//            }
-//            this.authorRepository.save(author);
-//        });
-//    }
 }
