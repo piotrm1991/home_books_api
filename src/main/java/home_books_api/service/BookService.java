@@ -25,13 +25,12 @@ public class BookService {
         this.publisherRepository = publisherRepository;
     }
 
-
     public Book addBook(Book book) {
         Optional<Author> authorAdded = Optional.ofNullable(book.getAuthor());
         if (book.getAuthor() == null) {
-            authorAdded = this.authorRepository.findByFirstNameAndLastName(PlaceholderNames.AUTHOR_FIRST_NAME, PlaceholderNames.AUTHOR_LAST_NAME).stream().findFirst();
+            authorAdded = this.authorRepository.findAuthorsByName(PlaceholderNames.AUTHOR_NAME).stream().findFirst();
             if (authorAdded.get() == null) {
-                authorAdded = Optional.of(Author.builder().firstName(PlaceholderNames.AUTHOR_FIRST_NAME).lastName(PlaceholderNames.AUTHOR_LAST_NAME).build());
+                authorAdded = Optional.of(Author.builder().name(PlaceholderNames.AUTHOR_NAME).build());
             }
         }
         Optional<Publisher> publisherAdded = Optional.ofNullable(book.getPublisher());
@@ -56,6 +55,37 @@ public class BookService {
 
         return this.bookRepository.save(addedBook);
     }
+
+//    public Book addBook(Book book) {
+//        Optional<Author> authorAdded = Optional.ofNullable(book.getAuthor());
+//        if (book.getAuthor() == null) {
+//            authorAdded = this.authorRepository.findByFirstNameAndLastName(PlaceholderNames.AUTHOR_FIRST_NAME, PlaceholderNames.AUTHOR_LAST_NAME).stream().findFirst();
+//            if (authorAdded.get() == null) {
+//                authorAdded = Optional.of(Author.builder().firstName(PlaceholderNames.AUTHOR_FIRST_NAME).lastName(PlaceholderNames.AUTHOR_LAST_NAME).build());
+//            }
+//        }
+//        Optional<Publisher> publisherAdded = Optional.ofNullable(book.getPublisher());
+//        if (book.getPublisher() == null) {
+//            publisherAdded = this.publisherRepository.findPublisherByName(PlaceholderNames.PUBLISHER_NAME).stream().findFirst();
+//            if (publisherAdded.get() == null) {
+//                publisherAdded = Optional.of(Publisher.builder().name(PlaceholderNames.PUBLISHER_NAME).build());
+//            }
+//        }
+//        Status addedStatus = book.getStatus();
+//        if (addedStatus == null) {
+//            addedStatus = Status.builder().build();
+//        }
+//        addedStatus.setDateUp(new Date(System.currentTimeMillis()));
+//        Book addedBook = Book.builder()
+//                .name(book.getName())
+//                .author(authorAdded.get())
+//                .publisher(publisherAdded.get())
+//                .status(addedStatus)
+//                .shelf(book.getShelf())
+//                .build();
+//
+//        return this.bookRepository.save(addedBook);
+//    }
 
     public void updateBook(Integer id, Book newPartialBook) {
         this.bookRepository.findById(id).ifPresent(book -> {

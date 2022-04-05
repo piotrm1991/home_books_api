@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -20,6 +21,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RestController
 @RequestMapping(value = "/api/authors", produces = {ApiVersion.V1_HAL_JSON, MediaType.ALL_VALUE})
 public class AuthorRestApiController {
+
 
     private static final String REL_SELF = "self";
     private static final String REL_BOOKS = "books";
@@ -32,14 +34,29 @@ public class AuthorRestApiController {
         this.authorService = authorService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
     public ResponseEntity<Resource<Author>> getAuthor(@PathVariable Integer id) {
         return this.authorRepository.findById(id).map(this::resource)
                 .map(this::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public ResponseEntity<Resource<Author>> getAuthorForAngular(@PathVariable Integer id) {
+        return this.authorRepository.findById(id).map(this::resource)
+                .map(this::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
+    public List<Resource<Author>> getAuthorsForAngular() {
+        return this.authorRepository.findAll().stream().map(this::resource)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping(produces = ApiVersion.V1_HAL_JSON)
     public Resources<Resource<Author>> getAuthors() {
         Resources<Resource<Author>> resources = new Resources<>(
                 this.authorRepository.findAll().stream().map(this::resource)
@@ -48,51 +65,63 @@ public class AuthorRestApiController {
         return resources;
     }
 
-    @GetMapping(params = "firstName")
-    public Resources<Resource<Author>> findAuthorsByFirstName(@RequestParam("firstName") String firstName) {
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(params = "name", produces = ApiVersion.V2_FOR_ANGULAR)
+    public Resources<Resource<Author>> findAuthorsByNameForAngular(@RequestParam("name") String name) {
         Resources<Resource<Author>> resources = new Resources<>(
-                this.authorRepository.findAuthorsByFirstName(firstName).stream()
+                this.authorRepository.findAuthorsByName(name).stream()
                         .map(this::resource)
                         .collect(Collectors.toList()));
         addAuthorLink(resources, REL_SELF);
         return resources;
     }
 
-    @GetMapping(params = "lastName")
-    public Resources<Resource<Author>> findAuthorsByLastName(@RequestParam("lastName") String lastName) {
+    @GetMapping(params = "name", produces = ApiVersion.V1_HAL_JSON)
+    public Resources<Resource<Author>> findAuthorsByName(@RequestParam("name") String name) {
         Resources<Resource<Author>> resources = new Resources<>(
-                this.authorRepository.findAuthorsByLastName(lastName).stream()
+                this.authorRepository.findAuthorsByName(name).stream()
                         .map(this::resource)
                         .collect(Collectors.toList()));
         addAuthorLink(resources, REL_SELF);
         return resources;
     }
 
-    @PatchMapping("/{id}")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PatchMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public void updateAuthorForAngular(@PathVariable Integer id, @RequestBody Author newPartialAuthor) {
+        this.authorService.updateAuthor(id, newPartialAuthor);
+    }
+
+    @PatchMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
     public void updateAuthor(@PathVariable Integer id, @RequestBody Author newPartialAuthor) {
         this.authorService.updateAuthor(id, newPartialAuthor);
     }
 
-    @PostMapping
-    public ResponseEntity<?> addAuthor(@RequestBody Author author) {
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(produces = ApiVersion.V2_FOR_ANGULAR)
+    public ResponseEntity<?> addAuthorForAngular(@RequestBody Author author) {
         Author addedAuthor = this.authorRepository.save(author);
         return ResponseEntity.created(URI.create(
-                resource(addedAuthor).getLink(REL_SELF).getHref()))
+                        resource(addedAuthor).getLink(REL_SELF).getHref()))
                 .build();
     }
 
-    @GetMapping(params = {"firstName", "lastName"})
-    public Resources<Resource<Author>> findAuthorsByFirstNameAndLastName(@RequestParam("lastName") String lastName, @RequestParam("firstName") String firstName) {
-        Resources<Resource<Author>> resources = new Resources<>(
-                this.authorRepository.findByFirstNameAndLastName(firstName, lastName).stream()
-                        .map(this::resource)
-                        .collect(Collectors.toList()));
-        addAuthorLink(resources, REL_SELF);
-        return resources;
+    @PostMapping(produces = ApiVersion.V1_HAL_JSON)
+    public ResponseEntity<?> addAuthor(@RequestBody Author author) {
+        Author addedAuthor = this.authorRepository.save(author);
+        return ResponseEntity.created(URI.create(
+                        resource(addedAuthor).getLink(REL_SELF).getHref()))
+                .build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
     public void deleteAuthor(@PathVariable("id") Integer id) {
+        this.authorRepository.deleteById(id);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @DeleteMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public void deleteAuthorForAngular(@PathVariable("id") Integer id) {
         this.authorRepository.deleteById(id);
     }
 

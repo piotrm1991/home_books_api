@@ -17,16 +17,18 @@ public class Author {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_author")
     private Integer id;
-    @Column(name = "first_name")
-    private String firstName;
-    @Column(name = "last_name")
-    private String lastName;
+    @Column(name = "name")
+    private String name;
+//    @Column(name = "last_name")
+//    private String lastName;
 //    @OneToMany(mappedBy = "author", cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.PERSIST, CascadeType.REFRESH})
 //    private List<Book> books;
 
-    public Author(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    //    public Author(String firstName, String lastName) {
+    public Author(String name) {
+        this.name = name;
+//        this.firstName = firstName;
+//        this.lastName = lastName;
     }
 //
 //    public void addBook(Book book) {
