@@ -34,7 +34,7 @@ public class PublisherRestApiController {
         this.publisherService = publisherService;
     }
 
-    @GetMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping(path = "/{id}")
     public ResponseEntity<Resource<Publisher>> getPublisher(@PathVariable Integer id) {
         return this.publisherRepository.findById(id).map(this::resource)
                 .map(this::ok)
@@ -49,7 +49,7 @@ public class PublisherRestApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping(produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping
     public Resources<Resource<Publisher>> getPublishers() {
         Resources<Resource<Publisher>> resources = new Resources<>(
                 this.publisherRepository.findAll().stream().map(this::resource)
@@ -71,7 +71,7 @@ public class PublisherRestApiController {
         this.publisherService.updatePublisher(id, newPartialPublisher);
     }
 
-    @PatchMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @PatchMapping(path = "/{id}")
     public void updatePublisher(@PathVariable Integer id, @RequestBody Publisher newPartialPublisher) {
         this.publisherService.updatePublisher(id, newPartialPublisher);
     }
@@ -87,7 +87,7 @@ public class PublisherRestApiController {
         return resources;
     }
 
-    @GetMapping(params = "name", produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping(params = "name")
     public Resources<Resource<Publisher>> findPublisherByName(@RequestParam("name") String name) {
         Resources<Resource<Publisher>> resources = new Resources<>(
                 this.publisherRepository.findPublisherByName(name).stream()
@@ -106,7 +106,7 @@ public class PublisherRestApiController {
                 .build();
     }
 
-    @PostMapping(produces = ApiVersion.V1_HAL_JSON)
+    @PostMapping
     public ResponseEntity<?> addPublisher(@RequestBody Publisher publisher) {
         Publisher addedPublisher = this.publisherRepository.save(publisher);
         return ResponseEntity.created(URI.create(
@@ -120,7 +120,7 @@ public class PublisherRestApiController {
         this.publisherRepository.deleteById(id);
     }
 
-    @DeleteMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @DeleteMapping(path = "/{id}")
     public void deletePublisher(@PathVariable("id") Integer id) {
         this.publisherRepository.deleteById(id);
     }

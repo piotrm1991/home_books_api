@@ -34,7 +34,7 @@ public class AuthorRestApiController {
         this.authorService = authorService;
     }
 
-    @GetMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping(path = "/{id}")
     public ResponseEntity<Resource<Author>> getAuthor(@PathVariable Integer id) {
         return this.authorRepository.findById(id).map(this::resource)
                 .map(this::ok)
@@ -56,7 +56,7 @@ public class AuthorRestApiController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping(produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping
     public Resources<Resource<Author>> getAuthors() {
         Resources<Resource<Author>> resources = new Resources<>(
                 this.authorRepository.findAll().stream().map(this::resource)
@@ -76,7 +76,7 @@ public class AuthorRestApiController {
         return resources;
     }
 
-    @GetMapping(params = "name", produces = ApiVersion.V1_HAL_JSON)
+    @GetMapping(params = "name")
     public Resources<Resource<Author>> findAuthorsByName(@RequestParam("name") String name) {
         Resources<Resource<Author>> resources = new Resources<>(
                 this.authorRepository.findAuthorsByName(name).stream()
@@ -92,7 +92,7 @@ public class AuthorRestApiController {
         this.authorService.updateAuthor(id, newPartialAuthor);
     }
 
-    @PatchMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @PatchMapping(path = "/{id}")
     public void updateAuthor(@PathVariable Integer id, @RequestBody Author newPartialAuthor) {
         this.authorService.updateAuthor(id, newPartialAuthor);
     }
@@ -106,7 +106,7 @@ public class AuthorRestApiController {
                 .build();
     }
 
-    @PostMapping(produces = ApiVersion.V1_HAL_JSON)
+    @PostMapping
     public ResponseEntity<?> addAuthor(@RequestBody Author author) {
         Author addedAuthor = this.authorRepository.save(author);
         return ResponseEntity.created(URI.create(
@@ -114,7 +114,7 @@ public class AuthorRestApiController {
                 .build();
     }
 
-    @DeleteMapping(path = "/{id}", produces = ApiVersion.V1_HAL_JSON)
+    @DeleteMapping(path = "/{id}")
     public void deleteAuthor(@PathVariable("id") Integer id) {
         this.authorRepository.deleteById(id);
     }
