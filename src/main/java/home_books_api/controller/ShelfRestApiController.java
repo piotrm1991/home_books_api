@@ -2,9 +2,11 @@ package home_books_api.controller;
 
 import home_books_api.config.ApiVersion;
 import home_books_api.model.Book;
+import home_books_api.model.Publisher;
 import home_books_api.model.Room;
 import home_books_api.model.Shelf;
 import home_books_api.repository.ShelfRepository;
+import home_books_api.service.ShelfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -27,8 +30,22 @@ public class ShelfRestApiController {
     @Autowired
     private ShelfRepository shelfRepository;
 
-    @GetMapping("/{id}")
+    private ShelfService shelfService;
+
+    public ShelfRestApiController(ShelfService shelfService) {
+        this.shelfService = shelfService;
+    }
+
+    @GetMapping(path = "/{id}")
     public ResponseEntity<Resource<Shelf>> getShelf(@PathVariable Integer id) {
+        return this.shelfRepository.findById(id).map(this::resource)
+                .map(this::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public ResponseEntity<Resource<Shelf>> getShelfForAngular(@PathVariable Integer id) {
         return this.shelfRepository.findById(id).map(this::resource)
                 .map(this::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -43,12 +60,28 @@ public class ShelfRestApiController {
         return resources;
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
+    public List<Resource<Shelf>> getShelvesForAngular() {
+        List<Resource<Shelf>> resources = this.shelfRepository.findAll().stream().map(this::resource)
+                        .collect(Collectors.toList());
+        return resources;
+    }
+
     @GetMapping(params = "idRoom")
     public Resources<Resource<Shelf>> getShelvesByRoom(@RequestParam("idRoom") Integer idRoom) {
         Resources<Resource<Shelf>> resources = new Resources<>(
                 this.shelfRepository.findByRoomId(idRoom).stream().map(this::resource)
                         .collect(Collectors.toList()));
         addShelfLink(resources, REL_SELF);
+        return resources;
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(params = "idRoom", produces = ApiVersion.V2_FOR_ANGULAR)
+    public List<Resource<Shelf>> getShelvesByRoomForAngular(@RequestParam("idRoom") Integer idRoom) {
+        List<Resource<Shelf>> resources = this.shelfRepository.findByRoomId(idRoom).stream().map(this::resource)
+                        .collect(Collectors.toList());
         return resources;
     }
 
@@ -62,6 +95,15 @@ public class ShelfRestApiController {
         return resources;
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(params = "letter", produces = ApiVersion.V2_FOR_ANGULAR)
+    public List<Resource<Shelf>> findShelfByLetterForAngular(@RequestParam("letter") String letter) {
+        List<Resource<Shelf>> resources = this.shelfRepository.findShelfByLetter(letter).stream()
+                        .map(this::resource)
+                        .collect(Collectors.toList());
+        return resources;
+    }
+
     @GetMapping(params = "number")
     public Resources<Resource<Shelf>> findShelfByLetter(@RequestParam("letter") Integer number) {
         Resources<Resource<Shelf>> resources = new Resources<>(
@@ -69,6 +111,15 @@ public class ShelfRestApiController {
                         .map(this::resource)
                         .collect(Collectors.toList()));
         addShelfLink(resources, REL_SELF);
+        return resources;
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping(params = "number", produces = ApiVersion.V2_FOR_ANGULAR)
+    public List<Resource<Shelf>> findShelfByLetterForAngular(@RequestParam("letter") Integer number) {
+        List<Resource<Shelf>> resources = this.shelfRepository.findShelfByNumber(number).stream()
+                        .map(this::resource)
+                        .collect(Collectors.toList());
         return resources;
     }
 
@@ -80,9 +131,30 @@ public class ShelfRestApiController {
                 .build();
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(produces = ApiVersion.V2_FOR_ANGULAR)
+    public ResponseEntity<?> addShelfForAngular(@RequestBody Shelf shelf) {
+        Shelf addedShelf = this.shelfRepository.save(shelf);
+        return ResponseEntity.created(URI.create(
+                resource(addedShelf).getLink(REL_SELF).getHref()))
+                .build();
+    }
+
     @DeleteMapping("/{id}")
     public void deleteShelf(@PathVariable("id") Integer id) {
         this.shelfRepository.deleteById(id);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @DeleteMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public void deleteShelfForAngular(@PathVariable("id") Integer id) {
+        this.shelfRepository.deleteById(id);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PatchMapping(path = "/{id}", produces = ApiVersion.V2_FOR_ANGULAR)
+    public void updateShelfForAngular(@PathVariable Integer id, @RequestBody Shelf newPartialShelf) {
+        this.shelfService.updateShelf(id, newPartialShelf);
     }
 
     private ResponseEntity<String> notFound() {
