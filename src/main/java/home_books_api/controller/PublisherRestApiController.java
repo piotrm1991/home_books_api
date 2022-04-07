@@ -1,7 +1,6 @@
 package home_books_api.controller;
 
 import home_books_api.config.ApiVersion;
-import home_books_api.model.Author;
 import home_books_api.model.Publisher;
 import home_books_api.repository.PublisherRepository;
 import home_books_api.service.PublisherService;

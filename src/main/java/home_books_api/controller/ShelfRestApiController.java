@@ -1,9 +1,6 @@
 package home_books_api.controller;
 
 import home_books_api.config.ApiVersion;
-import home_books_api.model.Book;
-import home_books_api.model.Publisher;
-import home_books_api.model.Room;
 import home_books_api.model.Shelf;
 import home_books_api.repository.ShelfRepository;
 import home_books_api.service.ShelfService;
@@ -62,9 +59,8 @@ public class ShelfRestApiController {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
-    public List<Resource<Shelf>> getShelvesForAngular() {
-        List<Resource<Shelf>> resources = this.shelfRepository.findAll().stream().map(this::resource)
-                        .collect(Collectors.toList());
+    public List<Shelf> getShelvesForAngular() {
+        List<Shelf> resources = this.shelfRepository.findAll();
         return resources;
     }
 
@@ -134,7 +130,7 @@ public class ShelfRestApiController {
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping(produces = ApiVersion.V2_FOR_ANGULAR)
     public ResponseEntity<?> addShelfForAngular(@RequestBody Shelf shelf) {
-        Shelf addedShelf = this.shelfRepository.save(shelf);
+        Shelf addedShelf = this.shelfService.addShelf(shelf);
         return ResponseEntity.created(URI.create(
                 resource(addedShelf).getLink(REL_SELF).getHref()))
                 .build();

@@ -3,8 +3,6 @@ package home_books_api.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity(name = "Shelf")
 @Table(name = "SHELF")
