@@ -2,6 +2,7 @@ package home_books_api.controller;
 
 import home_books_api.config.ApiVersion;
 import home_books_api.model.Publisher;
+import home_books_api.modelDTO.PublisherDTO;
 import home_books_api.repository.PublisherRepository;
 import home_books_api.service.PublisherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +60,8 @@ public class PublisherRestApiController {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
-    public List<Resource<Publisher>> getPublishersForAngular() {
-        return this.publisherRepository.findAll().stream().map(this::resource)
+    public List<Resource<PublisherDTO>> getPublishersForAngular() {
+        return this.publisherService.getPublishersForAngular().stream().map(this::resourceAngular)
                 .collect(Collectors.toList());
     }
 
@@ -134,6 +135,18 @@ public class PublisherRestApiController {
 
     private Resource<Publisher> resource(Publisher publisher) {
         Resource<Publisher> authorResource = new Resource<>(publisher);
+        authorResource.add(linkTo(
+                methodOn(PublisherRestApiController.class)
+                        .getPublisher(publisher.getId()))
+                .withSelfRel());
+        authorResource.add(linkTo(methodOn(BookRestApiController.class)
+                .getBooksByPublisher(publisher.getId()))
+                .withRel(REL_BOOKS));
+        return authorResource;
+    }
+
+    private Resource<PublisherDTO> resourceAngular(PublisherDTO publisher) {
+        Resource<PublisherDTO> authorResource = new Resource<>(publisher);
         authorResource.add(linkTo(
                 methodOn(PublisherRestApiController.class)
                         .getPublisher(publisher.getId()))
