@@ -2,6 +2,7 @@ package home_books_api.controller;
 
 import home_books_api.config.ApiVersion;
 import home_books_api.model.Shelf;
+import home_books_api.modelDTO.ShelfDTO;
 import home_books_api.repository.ShelfRepository;
 import home_books_api.service.ShelfService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +60,8 @@ public class ShelfRestApiController {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
-    public List<Shelf> getShelvesForAngular() {
-        List<Shelf> resources = this.shelfRepository.findAll();
+    public List<ShelfDTO> getShelvesForAngular() {
+        List<ShelfDTO> resources = this.shelfService.getShelvesForAngular();
         return resources;
     }
 
@@ -162,13 +163,13 @@ public class ShelfRestApiController {
     }
 
     private Resource<Shelf> resource(Shelf shelf) {
-        Resource<Shelf> authorResource = new Resource<>(shelf);
-        authorResource.add(linkTo(
+        Resource<Shelf> shelfResource = new Resource<>(shelf);
+        shelfResource.add(linkTo(
                 methodOn(ShelfRestApiController.class)
                         .getShelf(shelf.getId()))
                 .withSelfRel());
-        addShelfBooksLink(authorResource, REL_BOOKS, shelf.getId());
-        return authorResource;
+        addShelfBooksLink(shelfResource, REL_BOOKS, shelf.getId());
+        return shelfResource;
     }
 
     private void addShelfBooksLink(Resource<Shelf> resources, String rel, Integer id) {

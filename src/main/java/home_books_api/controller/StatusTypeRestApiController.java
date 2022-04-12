@@ -2,6 +2,7 @@ package home_books_api.controller;
 
 import home_books_api.config.ApiVersion;
 import home_books_api.model.StatusType;
+import home_books_api.modelDTO.StatusTypeDTO;
 import home_books_api.repository.StatusTypeRepository;
 import home_books_api.service.StatusTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +60,8 @@ public class StatusTypeRestApiController {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
-    public List<Resource<StatusType>> getStatusTypesForAngular() {
-        return this.statusTypeRepository.findAll().stream().map(this::resource)
+    public List<Resource<StatusTypeDTO>> getStatusTypesForAngular() {
+        return this.statusTypeService.getStatusTypesForAngular().stream().map(this::resourceAngular)
                 .collect(Collectors.toList());
     }
 
@@ -128,15 +129,27 @@ public class StatusTypeRestApiController {
     }
 
     private Resource<StatusType> resource(StatusType statusType) {
-        Resource<StatusType> authorResource = new Resource<>(statusType);
-        authorResource.add(linkTo(
+        Resource<StatusType> statusTypeResource = new Resource<>(statusType);
+        statusTypeResource.add(linkTo(
                 methodOn(StatusTypeRestApiController.class)
                         .getStatusType(statusType.getId()))
                 .withSelfRel());
-        authorResource.add(linkTo(methodOn(BookRestApiController.class)
+        statusTypeResource.add(linkTo(methodOn(BookRestApiController.class)
                         .getBooksByStatusType(statusType.getId()))
                 .withRel(REL_BOOKS));
-        return authorResource;
+        return statusTypeResource;
+    }
+
+    private Resource<StatusTypeDTO> resourceAngular(StatusTypeDTO statusType) {
+        Resource<StatusTypeDTO> statusTypeResource = new Resource<>(statusType);
+        statusTypeResource.add(linkTo(
+                methodOn(StatusTypeRestApiController.class)
+                        .getStatusType(statusType.getId()))
+                .withSelfRel());
+        statusTypeResource.add(linkTo(methodOn(BookRestApiController.class)
+                .getBooksByStatusType(statusType.getId()))
+                .withRel(REL_BOOKS));
+        return statusTypeResource;
     }
 
     private void addStatusTypeLink(Resources<Resource<StatusType>> resources, String rel) {

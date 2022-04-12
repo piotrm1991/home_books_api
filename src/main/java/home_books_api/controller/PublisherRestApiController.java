@@ -134,27 +134,27 @@ public class PublisherRestApiController {
     }
 
     private Resource<Publisher> resource(Publisher publisher) {
-        Resource<Publisher> authorResource = new Resource<>(publisher);
-        authorResource.add(linkTo(
+        Resource<Publisher> publisherResource = new Resource<>(publisher);
+        publisherResource.add(linkTo(
                 methodOn(PublisherRestApiController.class)
                         .getPublisher(publisher.getId()))
                 .withSelfRel());
-        authorResource.add(linkTo(methodOn(BookRestApiController.class)
+        publisherResource.add(linkTo(methodOn(BookRestApiController.class)
                 .getBooksByPublisher(publisher.getId()))
                 .withRel(REL_BOOKS));
-        return authorResource;
+        return publisherResource;
     }
 
     private Resource<PublisherDTO> resourceAngular(PublisherDTO publisher) {
-        Resource<PublisherDTO> authorResource = new Resource<>(publisher);
-        authorResource.add(linkTo(
+        Resource<PublisherDTO> publisherDTOResource = new Resource<>(publisher);
+        publisherDTOResource.add(linkTo(
                 methodOn(PublisherRestApiController.class)
                         .getPublisher(publisher.getId()))
                 .withSelfRel());
-        authorResource.add(linkTo(methodOn(BookRestApiController.class)
+        publisherDTOResource.add(linkTo(methodOn(BookRestApiController.class)
                 .getBooksByPublisher(publisher.getId()))
                 .withRel(REL_BOOKS));
-        return authorResource;
+        return publisherDTOResource;
     }
 
     private void addPublisherLink(Resources<Resource<Publisher>> resources, String rel) {

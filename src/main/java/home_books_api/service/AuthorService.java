@@ -4,12 +4,10 @@ import home_books_api.model.Author;
 import home_books_api.modelDTO.AuthorDTO;
 import home_books_api.repository.AuthorRepository;
 import home_books_api.repository.BookRepository;
-import org.springframework.hateoas.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthorService {

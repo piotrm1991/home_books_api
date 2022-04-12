@@ -235,12 +235,12 @@ public class BookRestApiController {
     }
 
     private Resource<Book> resource(Book book) {
-        Resource<Book> authorResource = new Resource<>(book);
-        authorResource.add(linkTo(
+        Resource<Book> bookResource = new Resource<>(book);
+        bookResource.add(linkTo(
                 methodOn(BookRestApiController.class)
                         .getBook(book.getId()))
                 .withSelfRel());
-        return authorResource;
+        return bookResource;
     }
 
     private void addBookLink(Resources<Resource<Book>> resources, String rel) {

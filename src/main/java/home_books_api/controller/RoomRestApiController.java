@@ -2,6 +2,7 @@ package home_books_api.controller;
 
 import home_books_api.config.ApiVersion;
 import home_books_api.model.Room;
+import home_books_api.modelDTO.RoomDTO;
 import home_books_api.repository.RoomRepository;
 import home_books_api.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +61,8 @@ public class RoomRestApiController {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
-    public List<Resource<Room>> getRoomsForAngular() {
-        return this.roomRepository.findAll().stream().map(this::resource)
+    public List<Resource<RoomDTO>> getRoomsForAngular() {
+        return this.roomService.getRoomsForAngular().stream().map(this::resourceAngular)
                 .collect(Collectors.toList());
     }
 
@@ -134,14 +135,23 @@ public class RoomRestApiController {
     }
 
     private Resource<Room> resource(Room room) {
-        Resource<Room> authorResource = new Resource<>(room);
-        authorResource.add(linkTo(
+        Resource<Room> roomResource = new Resource<>(room);
+        roomResource.add(linkTo(
                 methodOn(RoomRestApiController.class)
                         .getRoom(room.getId()))
                 .withSelfRel());
-        this.addRoomBooksLink(authorResource, REL_BOOKS, room.getId());
-        this.addRoomShelvesLink(authorResource, REL_SHELVES, room.getId());
-        return authorResource;
+        this.addRoomBooksLink(roomResource, REL_BOOKS, room.getId());
+        this.addRoomShelvesLink(roomResource, REL_SHELVES, room.getId());
+        return roomResource;
+    }
+
+    private Resource<RoomDTO> resourceAngular(RoomDTO room) {
+        Resource<RoomDTO> roomDTOResource = new Resource<>(room);
+        roomDTOResource.add(linkTo(
+                methodOn(RoomRestApiController.class)
+                        .getRoom(room.getId()))
+                .withSelfRel());
+        return roomDTOResource;
     }
 
     private void addRoomBooksLink(Resource<Room> resources, String rel, Integer id) {

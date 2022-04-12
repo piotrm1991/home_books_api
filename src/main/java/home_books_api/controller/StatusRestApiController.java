@@ -94,15 +94,15 @@ public class StatusRestApiController {
     }
 
     private Resource<Status> resource(Status status) {
-        Resource<Status> authorResource = new Resource<>(status);
-        authorResource.add(linkTo(
+        Resource<Status> statusResource = new Resource<>(status);
+        statusResource.add(linkTo(
                 methodOn(StatusRestApiController.class)
                         .getStatus(status.getId()))
                 .withSelfRel());
-        authorResource.add(linkTo(methodOn(BookRestApiController.class)
+        statusResource.add(linkTo(methodOn(BookRestApiController.class)
                         .getBookByStatus(status.getId()))
                 .withRel(REL_BOOK));
-        return authorResource;
+        return statusResource;
     }
 
     private void addStatusLink(Resources<Resource<Status>> resources, String rel) {

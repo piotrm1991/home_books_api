@@ -53,8 +53,6 @@ public class AuthorRestApiController {
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(produces = ApiVersion.V2_FOR_ANGULAR)
     public List<Resource<AuthorDTO>> getAuthorsForAngular() {
-//        return this.authorRepository.findAll().stream().map(this::resource)
-//                .collect(Collectors.toList());
         return this.authorService.getAuthorsForAngular().stream().map(this::resourceAngular)
                 .collect(Collectors.toList());
     }

@@ -1,8 +1,6 @@
 package home_books_api.service;
 
-import home_books_api.model.Author;
 import home_books_api.model.Publisher;
-import home_books_api.modelDTO.AuthorDTO;
 import home_books_api.modelDTO.PublisherDTO;
 import home_books_api.repository.BookRepository;
 import home_books_api.repository.PublisherRepository;

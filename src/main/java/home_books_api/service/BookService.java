@@ -5,6 +5,7 @@ import home_books_api.model.*;
 import home_books_api.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 
@@ -26,40 +27,8 @@ public class BookService {
         this.statusTypeRepository = statusTypeRepository;
     }
 
-//    public Book addBook(Book book) {
-//        Optional<Author> authorAdded = Optional.ofNullable(book.getAuthor());
-//        if (book.getAuthor() == null) {
-//            authorAdded = this.authorRepository.findAuthorsByName(PlaceholderNames.AUTHOR_NAME).stream().findFirst();
-//            if (authorAdded.get() == null) {
-//                authorAdded = Optional.of(Author.builder().name(PlaceholderNames.AUTHOR_NAME).build());
-//            }
-//        }
-//        Optional<Publisher> publisherAdded = Optional.ofNullable(book.getPublisher());
-//        if (book.getPublisher() == null) {
-//            publisherAdded = this.publisherRepository.findPublisherByName(PlaceholderNames.PUBLISHER_NAME).stream().findFirst();
-//            if (publisherAdded.get() == null) {
-//                publisherAdded = Optional.of(Publisher.builder().name(PlaceholderNames.PUBLISHER_NAME).build());
-//            }
-//        }
-//        Status addedStatus = book.getStatus();
-//        if (addedStatus == null) {
-//            addedStatus = Status.builder().build();
-//        }
-//        addedStatus.setDateUp(new Date(System.currentTimeMillis()));
-//        Book addedBook = Book.builder()
-//                .name(book.getName())
-//                .author(authorAdded.get())
-//                .publisher(publisherAdded.get())
-//                .status(addedStatus)
-//                .shelf(book.getShelf())
-//                .build();
-//
-//        return this.bookRepository.save(addedBook);
-//    }
-
-
     public Book addBook(Book book) {
-        Optional<Author> authorAdded = Optional.ofNullable(book.getAuthor());
+        Optional<Author> authorAdded;
         if (book.getAuthor() == null) {
             authorAdded = this.authorRepository.findAuthorsByName(PlaceholderNames.AUTHOR_NAME).stream().findFirst();
             if (authorAdded.get() == null) {
@@ -69,10 +38,15 @@ public class BookService {
             if (book.getAuthor().getId() != null) {
                 authorAdded = this.authorRepository.findById(book.getAuthor().getId());
             } else {
-                authorAdded = this.authorRepository.findAuthorsByName(book.getAuthor().getName()).stream().findFirst();
+                Collection<Author> authorsWithName = this.authorRepository.findAuthorsByName(book.getAuthor().getName());
+                if (authorsWithName.stream().count() == 0) {
+                    authorAdded = Optional.ofNullable(this.authorRepository.save(book.getAuthor()));
+                } else {
+                    authorAdded = this.authorRepository.findAuthorsByName(book.getAuthor().getName()).stream().findFirst();
+                }
             }
         }
-        Optional<Publisher> publisherAdded = Optional.ofNullable(book.getPublisher());
+        Optional<Publisher> publisherAdded;
         if (book.getPublisher() == null) {
             publisherAdded = this.publisherRepository.findPublisherByName(PlaceholderNames.PUBLISHER_NAME).stream().findFirst();
             if (publisherAdded.get() == null) {
@@ -82,17 +56,14 @@ public class BookService {
             if (book.getPublisher().getId() != null) {
                 publisherAdded = this.publisherRepository.findById(book.getPublisher().getId());
             } else {
-                publisherAdded = this.publisherRepository.findPublisherByName(book.getPublisher().getName()).stream().findFirst();
+                Collection<Publisher> publishersWithName = this.publisherRepository.findPublisherByName(book.getPublisher().getName());
+                if (publishersWithName.stream().count() == 0) {
+                    publisherAdded = Optional.ofNullable(this.publisherRepository.save(book.getPublisher()));
+                } else {
+                    publisherAdded = this.publisherRepository.findPublisherByName(book.getPublisher().getName()).stream().findFirst();
+                }
             }
         }
-//        Status addedStatus = book.getStatus();
-//        if (addedStatus != null) {
-//            addedStatus = Status.builder()
-//                    .comment(book.getStatus().getComment())
-//                    .statusType(this.statusTypeRepository.findById(book.getStatus().getStatusType().getId()).get())
-//                    .build();
-//        }
-//        addedStatus.setDateUp(new Date(System.currentTimeMillis()));
         StatusType addedStatusType = this.statusTypeRepository.findById(book.getStatus().getStatusType().getId()).get();
         Status addedStatus = book.getStatus();
         addedStatus.setStatusType(addedStatusType);
@@ -132,8 +103,8 @@ public class BookService {
                         newPartialBook.getShelf());
             }
             if (newPartialBook.getStatus() != null) {
-                book.setStatus(
-                        newPartialBook.getStatus());
+                book.setStatus(newPartialBook.getStatus());
+                book.getStatus().setDateUp(new Date(System.currentTimeMillis()));
             }
             this.bookRepository.save(book);
         });
